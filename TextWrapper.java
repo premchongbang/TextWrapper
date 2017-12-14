@@ -18,8 +18,7 @@ public class TextWrapper
   public static void main(String[] args) throws IOException
   {
     /* this program requires 2 parameters to run */
-    if (args.length >= 2)
-    {
+    if (args.length >= 2) {
       try
       {
         // deleting existing file with same filename  
@@ -47,18 +46,12 @@ public class TextWrapper
 
         System.setOut(console);
 
-      }
-      catch (FileNotFoundException e)
-      {
+      } catch (FileNotFoundException e) {
         System.err.println("Could not find file '" + args[0] + "'");
-      }
-      catch (NumberFormatException e)
-      {
+      } catch (NumberFormatException e) {
         System.err.println("'" + args[1] + "' is not a number");
       }
-    }
-    else
-    {
+    } else {
       System.out.println("This program requires 2 parameters to run: " +
              "a filename (string) and a column width (integer)");
     }
@@ -75,14 +68,12 @@ public class TextWrapper
     try
     {
       String line;
-      while ((line = br.readLine()) != null)
-      {
+      while ((line = br.readLine()) != null) {
         sb.append(line);
       }
+
       br.close();
-    }
-    catch (IOException e)
-    {
+    } catch (IOException e) {
       System.err.println("An IOException occurred: " + e);
     }
     return sb.toString();
@@ -106,9 +97,9 @@ public class TextWrapper
       for (char c : symbols.toCharArray()) {
         symbol_list.add(c);
       }
-      
+
       int pointer = 0; // keeps count of column width
-      String current_str = ""; // stores the single word
+      String current_str = ""; // stores the single attached characters
 
       // add each char value to an array
       char[] arr = text.toCharArray();
@@ -117,46 +108,57 @@ public class TextWrapper
       for(int i = 0; i < arr_length; i++){
         pointer++;
         char c = arr[i];
-        if(pointer%width == 0 && pointer != 0){
-          if(i+1 < arr_length){
-            char after_c = arr[i+1];
-            if( symbol_list.contains(c) ){
+
+        try{
+          /*
+            checks if pointer has reached the end of column
+          */
+          if(pointer%width == 0 && pointer != 0){
+            /*
+              checking if last character of the text is reached for avoiding null pointer
+            */
+            if(i+1 < arr_length){
+              char after_c = arr[i+1];
+              if(after_c == ' '){  // checks for empty space
+                current_str = current_str.concat(Character.toString(c));
+                System.out.print(current_str);
+                System.out.println();
+                pointer = 0;
+                current_str = "";
+              } else if( symbol_list.contains(c) ){ //checks for symbols
+                current_str = current_str.concat(Character.toString(c));
+                System.out.println(current_str);
+                current_str = "";
+                pointer = 0;
+              } else { // assumes that its a character
+                current_str = current_str.concat(Character.toString(c));
+                pointer = current_str.length();
+                System.out.println();
+              }
+            } else { // its a last character, so just print
               current_str = current_str.concat(Character.toString(c));
-              System.out.println(current_str);
-              current_str = "";
-              pointer = 0;
-            } else if(Character.isLetter(after_c) || Character.isDigit(after_c) ){
-              current_str = current_str.concat(Character.toString(c));
-              pointer = current_str.length();
-              System.out.println();
-            } else {
-              current_str = current_str.concat(Character.toString(c));
-              System.out.println(current_str);
+              System.out.print(current_str);
               current_str = "";
               pointer = 0;
             }
           } else {
-            current_str = current_str.concat(Character.toString(c));
-            System.out.print(current_str);
-            current_str = "";
+            if( c == ' ' && pointer == 1 ){ // checking if the first char value of the line is an empty space
+              pointer--;
+            } else if( i == (arr_length - 1) || symbol_list.contains(c) || c == ' '){ // checking for last char value, symbols and empty space
+              current_str = current_str.concat(Character.toString(c));
+              System.out.print(current_str);
+              current_str = "";
+            } else {
+              current_str = current_str.concat(Character.toString(c));
+            }
           }
-        } else {
-          if( c == ' ' && pointer == 1 ){
-            pointer--;
-          } else if( i == (arr_length - 1) || symbol_list.contains(c) ){
-            current_str = current_str.concat(Character.toString(c));
-            System.out.print(current_str);
-            current_str = "";
-          } else {
-            current_str = current_str.concat(Character.toString(c));
-          }
+        } catch(ArrayIndexOutOfBoundsException e){
+          System.out.println("Exception thrown  :" + e);
         }
       }
    } else{
     System.out.println("Invalid column width.");
    }
-
-    System.out.println();
   }
 
   /*
